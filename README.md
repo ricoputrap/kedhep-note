@@ -1,6 +1,5 @@
 # Kedhep Note
-
-Kedhep Note is a productivity web app for organizing daily tasks, tracking progress, and reflecting on your work. Built with [Next.js](https://nextjs.org), Tailwind CSS, and a modern component-based architecture, Kedhep Note helps you manage your workflow efficiently across devices.
+Kedhep Note is a productivity web app designed to help you capture everything on your mind—tasks, ideas, and plans—so nothing gets lost. Easily organize, prioritize, and select which tasks you want to focus on today. Built with [Next.js](https://nextjs.org), Tailwind CSS, and a modern component-based architecture, Kedhep Note streamlines your workflow and adapts seamlessly across devices.
 
 ![Kedhep Note Wireframe](./docs/wireframe.png)
 
