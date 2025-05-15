@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kedhep Note
+
+Kedhep Note is a productivity web app for organizing daily tasks, tracking progress, and reflecting on your work. Built with [Next.js](https://nextjs.org), Tailwind CSS, and a modern component-based architecture, Kedhep Note helps you manage your workflow efficiently across devices.
+
+![Kedhep Note Wireframe](./docs/wireframe.png)
+
+## Features
+
+- **Task Management:** Organize tasks by category (e.g., Work, Learning) with checklists.
+- **Dashboard:** Visualize your daily progress and statistics.
+- **Reflection:** Add daily reflections to track your growth.
+- **Responsive Design:** Optimized for both desktop and mobile devices.
+- **Dark Mode:** Seamless theme switching for comfortable viewing.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+- [pnpm](https://pnpm.io/) or npm/yarn
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/yourusername/kedhep-note.git
+cd kedhep-note
+pnpm install
+# or
+npm install
+# or
+yarn install
+```
+
+### Development
+
+Start the development server:
+
+```sh
+pnpm dev
+# or
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Building for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+pnpm build
+# or
+npm run build
+# or
+yarn build
+```
 
-## Learn More
+### Linting
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+pnpm lint
+# or
+npm run lint
+# or
+yarn lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/           # Next.js app directory (pages, layouts, etc.)
+  lib/           # Shared utilities and logic
+public/          # Static assets (SVGs, images)
+```
 
-## Deploy on Vercel
+## Technologies Used
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [PostCSS](https://postcss.org/)
+- [TypeScript](https://www.typescriptlang.org/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+Contributions are welcome! Please open issues or pull requests for suggestions and improvements.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+> Inspired by productivity tools and designed for personal and professional growth.
