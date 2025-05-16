@@ -1,8 +1,10 @@
+import Tasks from "../components/Tasks";
+
 export default async function Home() {
   return (
-    <div className="flex flex-col min-h-screen items-center justify-between">
-      <main className="flex-1">
-        EMpty
+    <div className="flex flex-col min-h-screen min-w-screen items-center justify-between">
+      <main className="flex-1 w-full">
+        <Tasks />
       </main>
       <footer className="flex gap-[24px] flex-wrap items-center justify-center py-4">
         <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
