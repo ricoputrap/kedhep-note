@@ -2,11 +2,11 @@ import React from 'react'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+import TaskItem from "@/components/TaskItem"
+import Title from "@/components/TaskCard/Title"
 
 interface TaskCardProps {
   title: string;
@@ -15,18 +15,16 @@ interface TaskCardProps {
 
 export default function TaskCard({ title, tasks }: TaskCardProps) {
   return (
-    <Card>
+    <Card className="gap-2">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>Task List</CardDescription>
+        <CardTitle>
+          <Title initialTitle={title} />
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
           {tasks.map((task, idx) => (
-            <li key={idx} className="flex items-start space-x-2">
-              <Checkbox className="cursor-pointer mt-1" />
-              <span className="break-words leading-normal">{task}</span>
-            </li>
+            <TaskItem key={idx} name={task} />
           ))}
         </ul>
       </CardContent>

@@ -1,5 +1,5 @@
 import React from 'react'
-import TaskCard from '../ui/TaskCard'
+import TaskCard from '../TaskCard'
 
 const taskGroups = [
   {
