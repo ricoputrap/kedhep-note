@@ -1,34 +1,25 @@
 "use client";
 
 import React, { useState } from 'react'
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface TitleProps {
   initialTitle: string;
 }
 
 export default function Title({ initialTitle }: TitleProps) {
-  const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(initialTitle);
 
   return (
     <div>
-      {editing ? (
-        <input
-          className="border rounded px-1 text-lg font-semibold w-full"
+      <Label className="w-full">
+        <Input
+          className="text-lg font-semibold w-full bg-transparent border-none focus:border-none focus:ring-0 outline-none shadow-none"
           value={value}
-          autoFocus
-          onBlur={() => setEditing(false)}
           onChange={e => setValue(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') setEditing(false); }}
         />
-      ) : (
-        <span
-          className="text-lg font-semibold cursor-text"
-          onClick={() => setEditing(true)}
-        >
-          {value}
-        </span>
-      )}
+      </Label>
     </div>
   )
 }
