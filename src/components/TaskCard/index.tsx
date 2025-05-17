@@ -15,13 +15,13 @@ interface TaskCardProps {
 
 export default function TaskCard({ title, tasks }: TaskCardProps) {
   return (
-    <Card className="gap-2">
-      <CardHeader>
+    <Card className="gap-0 py-3 shadow-none">
+      <CardHeader className="px-4">
         <CardTitle>
           <Title initialTitle={title} />
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4">
         <ul className="space-y-2">
           {tasks.map((task, idx) => (
             <TaskItem key={idx} name={task} />

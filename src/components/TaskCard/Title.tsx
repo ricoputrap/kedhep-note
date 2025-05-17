@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react'
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { AutosizeTextarea } from '../ui/autosized-textarea';
 
 interface TitleProps {
   initialTitle: string;
@@ -14,8 +14,9 @@ export default function Title({ initialTitle }: TitleProps) {
   return (
     <div>
       <Label className="w-full">
-        <Input
-          className="text-lg font-semibold w-full bg-transparent border-none focus:border-none focus:ring-0 outline-none shadow-none"
+        <AutosizeTextarea
+          minHeight={12}
+          className="p-1 resize-none h-fit !text-lg font-semibold w-full bg-transparent border-none focus-visible:ring-transparent focus:ring-0 outline-none shadow-none"
           value={value}
           onChange={e => setValue(e.target.value)}
         />
