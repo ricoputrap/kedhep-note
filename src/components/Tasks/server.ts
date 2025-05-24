@@ -9,7 +9,7 @@ export const getTasks = async () => {
     setTimeout(() => {
       console.log("Tasks fetched successfully");
       return resolve(TASKS_GROUPS);
-    }, 3000);
+    }, 500);
   }
   );
 }

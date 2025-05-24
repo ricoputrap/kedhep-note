@@ -24,7 +24,7 @@ export default function TaskCard({ title, tasks }: TaskCardProps) {
       <CardContent className="px-4">
         <ul className="space-y-2">
           {tasks.map((task, idx) => (
-            <TaskItem key={idx} name={task} />
+            <TaskItem key={idx} name={task}  />
           ))}
         </ul>
       </CardContent>
