@@ -1,40 +1,17 @@
-import { dbTaskList, dbTaskItem } from "@/db";
-import { ITaskItem, ITaskItemService } from "./types";
+import { dbTaskItem } from "@/db";
+import { ITaskItemService } from "./types";
+import createTaskItem from "./create-task-item";
 
 const taskItemService: ITaskItemService = {
-  async createTaskItem(userId, taskGroupId, content) {
+  createTaskItem,
 
-    // Check if the task group exists
-    const taskGroup = dbTaskList.find(list => list.id === taskGroupId && list.deleted_at === null);
-    if (!taskGroup) throw new Error("Task group not found");
-
-    // construct the new task item
-    const now = Date.now();
-
-    // positions: [0, 10, 20, ...]
-    const GAP = 10; // Gap between positions
-    const totalItems = dbTaskItem.filter(item => item.task_group_id === taskGroupId && item.deleted_at === null).length;
-    const position = totalItems > 0 ? (totalItems - 1 + GAP) : 0;
-
-    const newItem: ITaskItem = {
-      id: now + Math.floor(Math.random() * 1000),
-      content,
-      is_completed: false,
-      position,
-      task_group_id: taskGroupId,
-      user_id: userId,
-      created_at: now,
-      updated_at: now,
-      deleted_at: null
-    };
-
-    // add the new item to the database
-    dbTaskItem.push(newItem);
-
-    // Return the newly created item
-    return newItem;
-  },
-
+  /**
+   * Edit the title/content of a task item.
+   * @param id - The ID of the task item to edit.
+   * @param content - The new content/title for the task item.
+   * @returns The updated task item.
+   * @throws Error if the task item does not exist.
+   */
   async editTaskItemTitle(id, content) {
     const index = dbTaskItem.findIndex(taskItem => taskItem.id === id && taskItem.deleted_at === null);
     if (index === -1) throw new Error("Task item not found");
@@ -47,6 +24,13 @@ const taskItemService: ITaskItemService = {
     return dbTaskItem[index];
   },
 
+  /**
+   * Edit the completion status of a task item.
+   * @param id - The ID of the task item to edit.
+   * @param is_completed - The new completion status.
+   * @returns The updated task item.
+   * @throws Error if the task item does not exist.
+   */
   async editTaskItemCompletion(id, is_completed) {
     const index = dbTaskItem.findIndex(taskItem => taskItem.id === id && taskItem.deleted_at === null);
     if (index === -1) throw new Error("Task item not found");
@@ -59,6 +43,11 @@ const taskItemService: ITaskItemService = {
     return dbTaskItem[index];
   },
 
+  /**
+   * Soft delete a task item by setting its deleted_at timestamp.
+   * @param id - The ID of the task item to delete.
+   * @throws Error if the task item does not exist.
+   */
   async deleteTaskItem(id) {
     const index = dbTaskItem.findIndex(taskItem => taskItem.id === id && taskItem.deleted_at === null);
     if (index === -1) throw new Error("Task item not found");
@@ -67,6 +56,16 @@ const taskItemService: ITaskItemService = {
     dbTaskItem[index].deleted_at = Date.now();
   },
 
+  /**
+   * Reorder a task item within its group using gap-based indexing.
+   * Only updates the moved item's position unless a rebalance is needed.
+   * If gaps between positions become too small, rebalances all items in the group.
+   * @param id - The ID of the task item to reorder.
+   * @param taskGroupId - The ID of the task group containing the item.
+   * @param position - The new position index within the group.
+   * @returns The reordered task item.
+   * @throws Error if the task item or group does not exist, or if the new position is invalid.
+   */
   async reorderTaskItem(id, taskGroupId, position) {
     const indexOfTaskItem = dbTaskItem.findIndex(item => item.id == id && item.deleted_at === null);
     if (indexOfTaskItem === -1) throw new Error("Task item not found");
