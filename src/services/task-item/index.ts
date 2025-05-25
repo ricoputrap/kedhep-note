@@ -3,17 +3,24 @@ import { ITaskItem, ITaskItemService } from "./types";
 
 const taskItemService: ITaskItemService = {
   async createTaskItem(userId, taskGroupId, content) {
+
     // Check if the task group exists
     const taskGroup = dbTaskList.find(list => list.id === taskGroupId && list.deleted_at === null);
     if (!taskGroup) throw new Error("Task group not found");
 
     // construct the new task item
     const now = Date.now();
+
+    // positions: [0, 10, 20, ...]
+    const GAP = 10; // Gap between positions
+    const totalItems = dbTaskItem.filter(item => item.task_group_id === taskGroupId && item.deleted_at === null).length;
+    const position = totalItems > 0 ? (totalItems - 1 + GAP) : 0;
+
     const newItem: ITaskItem = {
       id: now + Math.floor(Math.random() * 1000),
       content,
       is_completed: false,
-      position: dbTaskList.find(list => list.id == taskGroupId)?.task_items?.length || 0, // Default position based on existing items
+      position,
       task_group_id: taskGroupId,
       user_id: userId,
       created_at: now,
@@ -60,18 +67,18 @@ const taskItemService: ITaskItemService = {
     dbTaskItem[index].deleted_at = Date.now();
   },
 
-  async reorderTaskItem(id, taskGroupId, newPosition) {
+  async reorderTaskItem(id, taskGroupId, position) {
     const indexOfTaskItem = dbTaskItem.findIndex(item => item.id == id && item.deleted_at === null);
     if (indexOfTaskItem === -1) throw new Error("Task item not found");
 
-    // get all task items in the group
+    // get all task items in the group, sorted by position
     const itemsInGroup = dbTaskItem
       .filter(item => item.task_group_id === taskGroupId && item.deleted_at === null)
       .sort((a, b) => a.position - b.position);
     if (itemsInGroup.length === 0) throw new Error("No task items found in this group");
 
     // Check if the new position is valid
-    if (newPosition < 0 || newPosition >= itemsInGroup.length) {
+    if (position < 0 || position >= itemsInGroup.length) {
       throw new Error("Invalid new position for reordering");
     }
 
@@ -84,83 +91,71 @@ const taskItemService: ITaskItemService = {
     itemsInGroup.splice(itemIndex, 1);
 
     // Insert it at the new position
-    itemsInGroup.splice(newPosition, 0, itemToReorder);
+    itemsInGroup.splice(position, 0, itemToReorder);
 
-    /**
-     * Initially, the value of `position` is exactly the same as the index in the array.
-     * When a task item is reordered, we need to update its position.
-     * 
-     * Example 1:
-     * positions = [{ position: 0 }, { position: 1 }, { position: 2 }, { position: 3 }]
-     * 
-     * If we move item at index 2 to position 1, the new positions will be:
-     * positions = [{ position: 0 }, { position: 1 }, { position: 0.5 }, { position: 3 }]
-     * ordered_positions = [{ position: 0 }, { position: 0.5 }, { position: 1 }, { position: 3 }]
-     * 0.5 comes from the average both neighboring positions: (0 + 1) / 2 = 0.5
-     * 
-     * If we move again the item at index 0 to 2
-     * positions = [{ position: 2 }, { position: 0.5 }, { position: 1 }, { position: 3 }]
-     * positions = [{ position: 0.5 }, { position: 1 }, { position: 2 }, { position: 3 }]
-     */
+    // Assign a new position using gap-based indexing
+    const GAP = 10; // Gap between positions
+    let newPosition = 0;
 
-    // The item is moved to the top of the list.
-    // That means the next item was previously the first item in the group.
-    if (newPosition === 0) {
-      itemToReorder.position = newPosition;
-
-      // swap `position` if there are only 2 tasks in the group
-      if (itemsInGroup.length === 2) {
-        itemsInGroup[newPosition + 1].position = 1;
-      }
-      else {
-        // set the new position of the next item to be the half of the position of the next 2 item
-        itemsInGroup[newPosition + 1].position = itemsInGroup[newPosition + 2].position / 2;
-      }
-
-      // update the position of the next item in the database
-      const nextItemIndex = dbTaskItem.findIndex(item => item.id === itemsInGroup[newPosition + 1].id && item.deleted_at === null);
-      if (nextItemIndex !== -1) {
-        dbTaskItem[nextItemIndex] = {
-          ...dbTaskItem[nextItemIndex],
-          position: itemsInGroup[newPosition + 1].position,
-          updated_at: Date.now(),
-        };
-      }
+    /// If moved to the start: `newPosition` is set to just before the next item's position
+    // or 0 if it's the only item
+    if (position === 0) {
+      newPosition = itemsInGroup[1] ? itemsInGroup[1].position - GAP : 0;
+      if (newPosition < 0) newPosition = 0;
     }
-    // the item is moved to the last position of the list
-    else if (newPosition === itemsInGroup.length - 1) {
-      itemToReorder.position = newPosition;
-
-      // swap `position` if there are only 2 tasks in the group
-      if (itemsInGroup.length === 2) {
-        itemsInGroup[newPosition - 1].position = 0;
-      }
-      else {
-        // set the new position of the prev item to be the average between the `position`
-        // of the current item and the prev 2 item
-        itemsInGroup[newPosition - 1].position = (itemsInGroup[newPosition - 2].position + newPosition) / 2;
-      }
-
-      // update the position of the prev item in the database
-      const prevItemIndex = dbTaskItem.findIndex(item => item.id === itemsInGroup[newPosition - 1].id && item.deleted_at === null);
-      if (prevItemIndex !== -1) {
-        dbTaskItem[prevItemIndex] = {
-          ...dbTaskItem[prevItemIndex],
-          position: itemsInGroup[newPosition - 1].position,
-          updated_at: Date.now(),
-        };
-      }
+    // If moved to the end: `newPosition` is set to just after the previous item's position.
+    else if (position === itemsInGroup.length - 1) {
+      newPosition = itemsInGroup[position - 1].position + GAP;
     }
+    // If moved between two items: `newPosition` is set to the average
+    // of the positions of the items before and after the new spot.
     else {
-      itemToReorder.position = (itemsInGroup[newPosition - 1].position + itemsInGroup[newPosition + 1].position) / 2;
+      const prev = itemsInGroup[position - 1].position;
+      const next = itemsInGroup[position + 1].position;
+      newPosition = Math.floor((prev + next) / 2);
     }
 
-    // update the position of this item in the database
-    dbTaskItem[indexOfTaskItem] = {
-      ...dbTaskItem[indexOfTaskItem],
-      position: itemToReorder.position,
-      updated_at: Date.now(),
-    };
+    itemToReorder.position = newPosition;
+    itemToReorder.updated_at = Date.now();
+
+    // If gap is too small (positions are not unique or too close), rebalance
+    const MIN_GAP = 2; // Minimum gap to trigger rebalance
+    let needsRebalance = false;
+    for (let i = 1; i < itemsInGroup.length; i++) {
+      if (itemsInGroup[i].position - itemsInGroup[i - 1].position < MIN_GAP) {
+        needsRebalance = true;
+        break;
+      }
+    }
+
+    // If rebalancing is needed, reset positions to 0, 10, 20, ...
+    // TODO wrap this in a transaction if using a real database
+    // TODO do batch update if using a real database
+    // TODO use background job for rebalancing if many items to avoid blocking
+    if (needsRebalance) {
+      for (let i = 0; i < itemsInGroup.length; i++) {
+        itemsInGroup[i].position = i * GAP;
+        itemsInGroup[i].updated_at = Date.now();
+
+        // Update in dbTaskItem
+        const dbIndex = dbTaskItem.findIndex(item => item.id === itemsInGroup[i].id && item.deleted_at === null);
+        if (dbIndex !== -1) {
+          dbTaskItem[dbIndex] = {
+            ...dbTaskItem[dbIndex],
+            position: itemsInGroup[i].position,
+            updated_at: itemsInGroup[i].updated_at,
+          };
+        }
+      }
+    }
+    // Only update the moved item in `dbTaskItem`
+    else {
+      dbTaskItem[indexOfTaskItem] = {
+        ...dbTaskItem[indexOfTaskItem],
+        position: itemToReorder.position,
+        updated_at: itemToReorder.updated_at,
+      };
+    }
 
     return itemToReorder;
   }
